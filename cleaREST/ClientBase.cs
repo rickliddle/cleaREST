@@ -10,14 +10,13 @@ using System.Threading.Tasks;
 
 namespace cleaREST
 {
-    //TODO: methods for all relevant headers (auth, custom, etc.)
-    //ref: https://msdn.microsoft.com/en-us/library/system.net.http.httpclient(v=vs.118).aspx
-
     //TODO: tests
 
     //TODO: other verbs
 
     //TODO: allow for async method calls as well
+
+    //TODO: logging throughout
 
     public abstract class ClientBase
     {
@@ -50,6 +49,24 @@ namespace cleaREST
             }
         }
 
+
+        private int _portNumber = 80;
+        public int PortNumber
+        {
+            get
+            {
+                return _portNumber;
+            }
+            set
+            {
+                if(value < 0 || value > 65535)
+                {
+                    throw new ArgumentOutOfRangeException("Invalid value for Port; must be in the range 0-65535.");
+                }
+
+                _portNumber = value;
+            }
+        }
         #endregion
 
         #region ctors
@@ -94,6 +111,8 @@ namespace cleaREST
 
             _isBasicAuth = true;
         }
+
+        //TODO: methods to set other auth mechanisms
 
         #endregion
 
@@ -175,7 +194,7 @@ namespace cleaREST
 
         #region POST methods
 
-        public virtual R PostSingle<T, R>(string path, T item, params object[] args)
+        public virtual TResponse PostSingle<TPost, TResponse>(string path, TPost item, params object[] args)
         {
             throw new NotImplementedException();
         }
@@ -191,6 +210,7 @@ namespace cleaREST
                 Query = BuildQueryString(querystringArgs),
                 Scheme = UriScheme,
                 Host = BaseUri,
+                Port = PortNumber,
                 Path = string.Format(path, args)
             }.Uri;
         }
